@@ -1,7 +1,6 @@
 package com.driver;
 
 
-import io.swagger.models.auth.In;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ public class OrderRepository {
 
     HashMap<String,Order> orderDb = new HashMap<>();
     HashMap<String,DeliveryPartner> partnerDb= new HashMap<>();
-    HashMap<String,List<String>> orderpartner= new HashMap<>();
+    HashMap<String,List<String>> assigned = new HashMap<>();
     HashMap<String,Order> unassigned= new HashMap<>();
 
     public OrderRepository() {
@@ -29,9 +28,9 @@ public class OrderRepository {
     }
 
     public void addOrderPartnerPair(String orderId, String partnerId) {
-        if(orderpartner.get(partnerId)==null)
-            orderpartner.put(partnerId,new ArrayList<>());
-        orderpartner.get(partnerId).add(orderId);
+        if(assigned.get(partnerId)==null)
+            assigned.put(partnerId,new ArrayList<>());
+        assigned.get(partnerId).add(orderId);
     }
 
     public Order getOrderById(String orderId) {
@@ -44,11 +43,11 @@ public class OrderRepository {
     }
 
     public Integer getOrderCountByPartnerId(String partnerId) {
-        return orderpartner.get(partnerId)==null?0:orderpartner.get(partnerId).size();
+        return assigned.get(partnerId)==null?0: assigned.get(partnerId).size();
     }
 
     public List<String> getOrdersByPartnerId(String partnerId) {
-        return orderpartner.getOrDefault(partnerId,new ArrayList<>());
+        return assigned.getOrDefault(partnerId,new ArrayList<>());
     }
 
     public List<String> getAllOrders() {
@@ -65,7 +64,7 @@ public class OrderRepository {
     public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId) {
         Integer ans = 0;
         int timeGiven = Integer.valueOf(time.substring(0,2))*60+Integer.valueOf(4);
-        List<String> list = orderpartner.get(partnerId);
+        List<String> list = assigned.get(partnerId);
         for(int i=0;i< list.size();i++){
             Order order = orderDb.get(list.get(i));
             if(order.getDeliveryTime()>timeGiven)
@@ -75,7 +74,7 @@ public class OrderRepository {
     }
 
     public String getLastDeliveryTimeByPartnerId(String partnerId) {
-        List<String> list = orderpartner.get(partnerId);
+        List<String> list = assigned.get(partnerId);
         int max = 0;
         for(int i=0;i< list.size();i++){
             Order order = orderDb.get(list.get(i));
@@ -87,16 +86,18 @@ public class OrderRepository {
     }
 
     public void deletePartnerById(String partnerId) {
-        List<String> list = orderpartner.getOrDefault(partnerId,new ArrayList<>());
+        List<String> list = assigned.getOrDefault(partnerId,new ArrayList<>());
         for(String s:list){
             unassigned.put(s,orderDb.get(s));
+            list.remove(s);
         }
-        orderpartner.remove(partnerId);
+        assigned.remove(partnerId);
+        partnerDb.remove(partnerId);
     }
 
     public void deleteOrderById(String orderId) {
-        for(String s:orderpartner.keySet()){
-            List<String> orderlist = orderpartner.get(s);
+        for(String s: assigned.keySet()){
+            List<String> orderlist = assigned.get(s);
             if(orderlist.contains(orderId)){
                 orderlist.remove(orderId);
                 break;
