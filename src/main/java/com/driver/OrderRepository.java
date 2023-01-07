@@ -89,8 +89,8 @@ public class OrderRepository {
         List<String> list = assigned.getOrDefault(partnerId,new ArrayList<>());
         for(String s:list){
             unassigned.put(s,orderDb.get(s));
-            list.remove(s);
         }
+        if(assigned.containsKey(partnerId))
         assigned.remove(partnerId);
         partnerDb.remove(partnerId);
     }
