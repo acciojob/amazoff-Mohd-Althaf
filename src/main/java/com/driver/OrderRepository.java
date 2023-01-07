@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 @Repository
@@ -13,7 +14,7 @@ public class OrderRepository {
     HashMap<String,Order> orderDb = new HashMap<>();
     HashMap<String,DeliveryPartner> partnerDb= new HashMap<>();
     HashMap<String,List<String>> assigned = new HashMap<>();
-    HashMap<String,Order> unassigned= new HashMap<>();
+    HashSet<String> unassigned= new HashSet<>();
 
     public OrderRepository() {
     }
@@ -88,14 +89,17 @@ public class OrderRepository {
     public void deletePartnerById(String partnerId) {
         List<String> list = assigned.getOrDefault(partnerId,new ArrayList<>());
         for(String s:list){
-            unassigned.put(s,orderDb.get(s));
+            unassigned.add(s);
         }
+        partnerDb.remove(partnerId);
         if(assigned.containsKey(partnerId))
         assigned.remove(partnerId);
-        partnerDb.remove(partnerId);
+
     }
 
     public void deleteOrderById(String orderId) {
+        if(unassigned.contains(orderId))
+            unassigned.remove(orderId);
         for(String s: assigned.keySet()){
             List<String> orderlist = assigned.get(s);
             if(orderlist.contains(orderId)){
