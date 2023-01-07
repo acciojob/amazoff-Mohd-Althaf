@@ -11,17 +11,14 @@ import java.util.List;
 @Repository
 public class OrderRepository {
 
-    HashMap<String,Order> orderDb;
-    HashMap<String,DeliveryPartner> partnerDb;
-    HashMap<String,List<String>> orderpartner;
-    HashMap<String,Order> unassigned;
+    HashMap<String,Order> orderDb = new HashMap<>();
+    HashMap<String,DeliveryPartner> partnerDb= new HashMap<>();
+    HashMap<String,List<String>> orderpartner= new HashMap<>();
+    HashMap<String,Order> unassigned= new HashMap<>();
 
-    OrderRepository(){
-        orderDb = new HashMap<>();
-        partnerDb = new HashMap<>();
-        orderpartner = new HashMap<>();
-        unassigned = new HashMap<>();
+    public OrderRepository() {
     }
+
     public void addOrder(Order order) {
         orderDb.put(order.getId(),order);
     }
@@ -38,6 +35,7 @@ public class OrderRepository {
     }
 
     public Order getOrderById(String orderId) {
+      //  System.out.println(orderDb.size() +" "+orderDb.get(orderId).toString());
         return orderDb.getOrDefault(orderId,null);
     }
 
